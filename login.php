@@ -21,7 +21,8 @@
 	$signupGender = "male";
 	$signupCarPref_items = [];
 	$notice = "";
-
+	$loginEmailError ="";
+	$loginPasswordError='';
 	// kas epost oli olemas
 	if (isset ($_POST ["signupEmail"])){
 		
@@ -129,7 +130,21 @@
 
 	if(isset($_POST["loginEmail"]) && isset($_POST['loginPassword']) && !empty($_POST["loginEmail"]) && !empty($_POST['loginPassword'])){
 		$notice = login($_POST["loginEmail"], $_POST['loginPassword']);
-	} 
+	}
+
+	if (isset($_POST['loginEmail'])){
+		if (empty($_POST['loginEmail'])){
+			$loginEmailError = "See väli on kohustuslik!";
+		}
+	}
+
+
+	if (isset($_POST['loginPassword'])){
+		if (empty($_POST['loginPassword'])){
+			$loginPasswordError = "See väli on kohustuslik!";
+		}
+	}
+
 
 ?>
 
@@ -164,11 +179,11 @@
 		<form method ="post">
 			<p class = "redtext"><?=$notice;?></p>
 			<label>E-post:</label><br>
-			<input name = "loginEmail" type ="email" placeholder = "E-post">
+			<input name = "loginEmail" type ="email" placeholder = "E-post"><?= $loginEmailError;?>
 			<br><br>
 			
 			<label>Parool:</label><br>
-			<input name = "loginPassword" type ="password" placeholder = "Parool">
+			<input name = "loginPassword" type ="password" placeholder = "Parool"><?= $loginPasswordError;?>
 			<br><br>
 			
 			<input type ="submit" value = "Logi sisse">
