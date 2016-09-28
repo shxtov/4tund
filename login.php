@@ -1,6 +1,14 @@
 <?php
 	//võtab ja kopeerib faili sisu
 	require ("../../config.php");
+	require ("functions.php");
+
+
+
+	//kas kasutaja sisse logitud
+	if (isset ($_SESSION["userId"])){
+		header("Location: data.php");
+	}
 
     //var_dump($_POST);
 	
@@ -12,6 +20,7 @@
 	$signupBday = "1995-02-25";
 	$signupGender = "male";
 	$signupCarPref_items = [];
+	$notice = "";
 
 	// kas epost oli olemas
 	if (isset ($_POST ["signupEmail"])){
@@ -103,50 +112,24 @@
 
 
 
-// tean et ühtegi viga ei olnud ja saan &&med salvestatud
 	if (empty ($signupEmailError)&& empty($signupPasswordError) && empty($signupCarPrefError)
 		&& empty($signupBdayError) &&  isset ($_POST['signupPassword'])
 		&& isset ($_POST['signupEmail']) && isset ($_POST['signupBday'])
 		&& isset ($_POST['signupGender']) && !empty ($_POST['signupCarPref_items'])){
 
-		//echo "Salvestan...<br>";
-			//echo "E-mail: ".$signupEmail."<br>";
 
-			//echo "Password: ".$_POST["signupPassword"]."<br>";
-			//echo "Hash: ".$password."<br>";
-			//echo "Bday: ".$_POST['signupBday']."<br>";
-			//echo "Gender: ".$_POST['signupGender']."<br>";
-			//echo "Carprefs: ".$_POST['signupCarPref_items']."<br>";
-			
-			
-			// &&mebaasiga ühendus
-			
-			$db = "if16_vladsuto_1";
-			
-			$mysqli = new mysqli($serverHost, $serverUsername, $serverPassword, $db);
-			
-			//käsk 
-			$stmt = $mysqli->prepare("INSERT INTO user_table (email, password, bday, gender, carpref) VALUES (?,?,?,?,?)");
-			$signupCarPref_todatabase = implode ($_POST['signupCarPref_items'], ",");
-			$password = hash("sha512", $_POST["signupPassword"]);
+		$signupCarPref_todatabase = implode ($_POST['signupCarPref_items'], " ");
+		$password = hash("sha512", $_POST["signupPassword"]);
 
-			
-			//echo $mysqli->error;
-			
-			// asendad küsimärgid väärtustega
-			//iga muutuja kohta 1 täht, mis tüüpi muutuja on
-			//s - string
-			//i - integer
-			//d - double/float
-			$stmt->bind_param("sssss", $signupEmail, $password, $signupBday, $signupGender, $signupCarPref_todatabase);
-			
-			if($stmt->execute()){
-				echo "Salvestamine õnnestus!";
-			}else{
-				echo "ERROR!".$stmt->error;
-			}
+
+		signup($signupEmail, $password, $signupBday, $signupGender, $signupCarPref_todatabase);
 	}
 
+	//kontrollin et kasutaja täitis välja ja võib sisse logida
+
+	if(isset($_POST["loginEmail"]) && isset($_POST['loginPassword']) && !empty($_POST["loginEmail"]) && !empty($_POST['loginPassword'])){
+		$notice = login($_POST["loginEmail"], $_POST['loginPassword']);
+	} 
 
 ?>
 
@@ -175,12 +158,11 @@
 
 <body>
 
-        <!------ Эта форма для домашнего задания не нужна
 
 		<h1>Logi sisse:</h1>
 		
 		<form method ="post">
-
+			<p class = "redtext"><?=$notice;?></p>
 			<label>E-post:</label><br>
 			<input name = "loginEmail" type ="email" placeholder = "E-post">
 			<br><br>
@@ -191,7 +173,7 @@
 			
 			<input type ="submit" value = "Logi sisse">
 		
-		</form>------->
+		</form>
 		
 		
 		<h1>Loo kasutaja:</h1>
